@@ -134,3 +134,22 @@ textarea {
   .two-col { grid-template-columns: 1fr; }
   .stat-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* ── Nav update for login ── */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.nav-left  { display: flex; gap: 4px; }
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.nav-user  { color: #aaa; font-size: 14px; }
+.nav-logout {
+  background: rgba(255,255,255,0.15);
+  color: white !important;
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  text-decoration: none !important;
+}
+.nav-logout:hover { background: rgba(255,255,255,0.25); }
