@@ -153,3 +153,37 @@ nav {
   text-decoration: none !important;
 }
 .nav-logout:hover { background: rgba(255,255,255,0.25); }
+/* ── Cars inventory ── */
+.fuel-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: bold;
+}
+.fuel-petrol  { background: #fde8d8; color: #7d3c10; }
+.fuel-diesel  { background: #e8e8e8; color: #333; }
+.fuel-ev      { background: #d1f2eb; color: #0e6655; }
+.fuel-cng     { background: #eaf2fb; color: #1a5276; }
+
+/* ── Two column form rows ── */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 4px;
+}
+.form-col { display: flex; flex-direction: column; }
+.form-label {
+  font-size: 13px;
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 4px;
+}
+@media (max-width: 600px) {
+  .form-row { grid-template-columns: 1fr; }
+}
+
+/* ── Test drive today highlight ── */
+details summary::-webkit-details-marker { color: #2c3e50; }
+details summary:hover { opacity: 0.8; }
