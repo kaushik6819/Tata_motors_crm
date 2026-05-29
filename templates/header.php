@@ -18,6 +18,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <a href="/mini-crm/pages/leads.php">🎯 Leads</a>
     <a href="/mini-crm/pages/cars.php">🚗 Cars</a>
     <a href="/mini-crm/pages/test_drives.php">🔑 Test Drives</a>
+    <a href="/mini-crm/pages/after_sales.php">🔧 After-Sales</a>
   </div>
   <div class="nav-right">
     <?php if (isset($_SESSION['username'])): ?>

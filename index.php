@@ -10,16 +10,21 @@ $wonLeads      = $pdo->query("SELECT COUNT(*) FROM leads WHERE status = 'won'")-
 $lostLeads     = $pdo->query("SELECT COUNT(*) FROM leads WHERE status = 'lost'")->fetchColumn();
 
 // ── Leads by status (for the bar chart) ─────────────────────
+// ── Leads by status ─────────────────────────────────────────
 $statusRows = $pdo->query(
     "SELECT status, COUNT(*) as total FROM leads GROUP BY status"
 )->fetchAll(PDO::FETCH_KEY_PAIR);
 
-// ── Recent leads (last 5) ────────────────────────────────────
+// ── Booked + Delivered = Won for stat card ───────────────────
+$wonLeads  = ($statusRows['booked']    ?? 0) + ($statusRows['delivered'] ?? 0);
+$lostLeads =  $statusRows['lost']      ?? 0;
+
+// ── Recent leads ────────────────────────────────────────────
 $recentLeads = $pdo->query(
     "SELECT * FROM leads ORDER BY created_at DESC LIMIT 5"
 )->fetchAll();
 
-// ── Recent contacts (last 5) ─────────────────────────────────
+// ── Recent contacts ──────────────────────────────────────────
 $recentContacts = $pdo->query(
     "SELECT * FROM contacts ORDER BY created_at DESC LIMIT 5"
 )->fetchAll();
@@ -50,25 +55,32 @@ $recentContacts = $pdo->query(
   </div>
 
   <!-- ── Leads by Status ── -->
+  <!-- ── Leads by Status ── -->
   <h2>Leads by Status</h2>
   <div class="status-bars">
   <?php
   $config = [
-    'new'       => ['#3498db', '🔵 New'],
-    'contacted' => ['#f39c12', '🟡 Contacted'],
-    'qualified' => ['#1abc9c', '🔷 Qualified'],
-    'won'       => ['#27ae60', '🟢 Won'],
-    'lost'      => ['#e74c3c', '🔴 Lost'],
+    'new'                  => ['#3498db', '🔵 New'],
+    'test_drive_scheduled' => ['#f39c12', '🚗 Test Drive Scheduled'],
+    'quote_sent'           => ['#1abc9c', '📄 Quote Sent'],
+    'negotiating'          => ['#9b59b6', '🤝 Negotiating'],
+    'booked'               => ['#27ae60', '✅ Booked'],
+    'delivered'            => ['#2ecc71', '🎉 Delivered'],
+    'lost'                 => ['#e74c3c', '❌ Lost'],
   ];
-  $max = max(array_values($statusRows) ?: [1]);
+  $max = max(array_merge(array_values($statusRows), [1]));
   foreach ($config as $key => [$color, $label]):
     $count = $statusRows[$key] ?? 0;
-    $pct   = $max > 0 ? round(($count / $max) * 100) : 0;
+    $pct   = round(($count / $max) * 100);
   ?>
   <div class="bar-row">
-    <a href="pages/leads.php?filter=<?= $key ?>" class="bar-label"><?= $label ?></a>
+    <a href="pages/leads.php?filter=<?= $key ?>" class="bar-label">
+      <?= $label ?>
+    </a>
     <div class="bar-track">
-      <div class="bar-fill" style="width:<?= $pct ?>%; background:<?= $color ?>;"></div>
+      <div class="bar-fill"
+           style="width:<?= max($pct,($count>0?2:0)) ?>%;
+                  background:<?= $color ?>;"></div>
     </div>
     <span class="bar-count"><?= $count ?></span>
   </div>
@@ -79,24 +91,49 @@ $recentContacts = $pdo->query(
   <div class="two-col">
 
     <!-- Recent Leads -->
-    <div>
-      <h2>Recent Leads</h2>
-      <?php if (empty($recentLeads)): ?>
-        <p style="color:#999;">No leads yet. <a href="pages/leads.php">Add one</a>.</p>
-      <?php else: ?>
-        <table>
-          <tr><th>Name</th><th>Status</th><th>Added</th></tr>
-          <?php foreach ($recentLeads as $l): ?>
-          <tr>
-            <td><?= htmlspecialchars($l['name']) ?></td>
-            <td><span class="badge badge-<?= $l['status'] ?>"><?= ucfirst($l['status']) ?></span></td>
-            <td style="font-size:13px;color:#888"><?= date('d M', strtotime($l['created_at'])) ?></td>
-          </tr>
-          <?php endforeach; ?>
-        </table>
-        <a href="pages/leads.php" style="font-size:13px;">View all leads →</a>
-      <?php endif; ?>
-    </div>
+    <!-- Recent Leads -->
+<div>
+  <h2>Recent Leads</h2>
+  <?php if (empty($recentLeads)): ?>
+    <p style="color:#999;">No leads yet. <a href="pages/leads.php">Add one</a>.</p>
+  <?php else: ?>
+    <table>
+      <tr><th>Name</th><th>Car</th><th>Status</th><th>Added</th></tr>
+      <?php foreach ($recentLeads as $l):
+        $statusColors = [
+          'new'                  => ['#cce5ff','#004085'],
+          'test_drive_scheduled' => ['#fff3cd','#856404'],
+          'quote_sent'           => ['#d1ecf1','#0c5460'],
+          'negotiating'          => ['#e2d9f3','#4a235a'],
+          'booked'               => ['#d4edda','#155724'],
+          'delivered'            => ['#d4edda','#155724'],
+          'lost'                 => ['#f8d7da','#721c24'],
+        ];
+        [$bg,$clr] = $statusColors[$l['status']] ?? ['#eee','#555'];
+        $label = ucwords(str_replace('_',' ',$l['status']));
+      ?>
+      <tr>
+        <td><?= htmlspecialchars($l['name']) ?></td>
+        <td style="font-size:12px;color:#888;">
+          <?= htmlspecialchars($l['car_model'] ?? '—') ?>
+        </td>
+        <td>
+          <span style="
+            background:<?= $bg ?>; color:<?= $clr ?>;
+            padding:2px 8px; border-radius:10px;
+            font-size:11px; font-weight:bold;
+            white-space:nowrap;
+          "><?= $label ?></span>
+        </td>
+        <td style="font-size:13px;color:#888">
+          <?= date('d M', strtotime($l['created_at'])) ?>
+        </td>
+      </tr>
+      <?php endforeach; ?>
+    </table>
+    <a href="pages/leads.php" style="font-size:13px;">View all leads →</a>
+  <?php endif; ?>
+</div>
 
     <!-- Recent Contacts -->
     <div>

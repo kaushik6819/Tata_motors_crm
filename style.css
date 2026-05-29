@@ -187,3 +187,18 @@ nav {
 /* ── Test drive today highlight ── */
 details summary::-webkit-details-marker { color: #2c3e50; }
 details summary:hover { opacity: 0.8; }
+
+/* ── After-sales service type badges ── */
+.as-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: bold;
+}
+.as-first_free_service  { background: #d1ecf1; color: #0c5460; }
+.as-paid_service        { background: #e2e3e5; color: #383d41; }
+.as-complaint           { background: #f8d7da; color: #721c24; }
+.as-feedback            { background: #e2d9f3; color: #4a235a; }
+.as-insurance_renewal   { background: #fff3cd; color: #856404; }
+.as-extended_warranty   { background: #d4edda; color: #155724; }
